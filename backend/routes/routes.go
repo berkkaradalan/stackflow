@@ -29,16 +29,50 @@ func SetupRouter() *gin.Engine {
 		c.Next()
 	})
 	// router.Use(middleware.ErrorHandler())
+
+	// Health endpoints
 	router.GET("/health", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":  "healthy",
 			"message": "Server is running",
 		})
 	})
+	router.GET("/health/live", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"status": "live",
+		})
+	})
+	router.GET("/health/ready", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"status": "ready",
+		})
+	})
+
+	// Metrics endpoint
+	router.GET("/metrics", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"metrics": "prometheus metrics endpoint",
+		})
+	})
+
+	// WebSocket endpoint
+	router.GET("/ws", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "WebSocket endpoint",
+		})
+	})
 
 	api := router.Group("/api")
 	{
+		setupAuthRoutes(api)
 		setupUserRoutes(api)
+		setupOrganizationRoutes(api)
+		setupProjectRoutes(api)
+		setupTaskRoutes(api)
+		setupAgentsRoutes(api)
+		setupWorkflowRoutes(api)
+		setupCodeArtifactRoutes(api)
+		setupAnalyticsRoutes(api)
 	}
 
 	return router

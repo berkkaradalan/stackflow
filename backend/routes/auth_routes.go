@@ -4,17 +4,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupUserRoutes(r *gin.RouterGroup) {
-	users := r.Group("/users")
+func setupAuthRoutes(r *gin.RouterGroup) {
+	auth := r.Group("/auth")
 
 	// Public
-	users.POST("/login")
+	auth.POST("/login")
 
 	// Protected
-	users.Use()
+	auth.Use()
 	{
-		users.POST("/logout")
-		users.GET("/profile")
-		users.PUT("/profile")
+		auth.POST("/logout")
+		auth.POST("/refresh")
+		auth.GET("/profile")
+		auth.PUT("/profile")
 	}
 }
