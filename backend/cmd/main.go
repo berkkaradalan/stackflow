@@ -11,12 +11,13 @@ import (
 	"time"
 
 	"github.com/berkkaradalan/stackflow/config"
+	"github.com/berkkaradalan/stackflow/database"
 	"github.com/berkkaradalan/stackflow/routes"
 )
 
 func main() {
 
-	// ctx := context.Background()
+	ctx := context.Background()
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -24,11 +25,11 @@ func main() {
 	}
 
 	// todo - database connection
-	// pool, err := database.Connect(ctx, cfg.Env)
-	// if err != nil {
-	// 	log.Fatal("Failed to connect to database: ", err)
-	// }
-	// defer pool.Close()
+	pool, err := database.Connect(ctx, cfg.Env)
+	if err != nil {
+		log.Fatal("Failed to connect to database: ", err)
+	}
+	defer pool.Close()
 
 	// if err := database.Migrate(ctx, pool, cfg); err != nil {
 	// 	log.Fatal("Failed to run migrations: ", err)
