@@ -1,7 +1,6 @@
 from fastapi import FastAPI
+from routes import main_router
 
 app = FastAPI()
 
-@app.get("/health")
-def get_health_check():
-    return {"status":"healthy", "message":"agent-service is running."}
+app.include_router(main_router, prefix="/api")
