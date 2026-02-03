@@ -4,4 +4,4 @@ app = FastAPI()
 
 @app.get("/health")
 def get_health_check():
-    return {"status":"ok"}
+    return {"status":"healthy", "message":"agent-service is running."}
