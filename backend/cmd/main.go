@@ -34,7 +34,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	if err := database.Migrate(ctx, pool); err != nil {
+	if err := database.Migrate(ctx, pool, cfg); err != nil {
 		log.Fatal("Failed to run migrations: ", err)
 	}
 

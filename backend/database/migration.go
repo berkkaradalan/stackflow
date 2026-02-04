@@ -5,9 +5,11 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/crypto/bcrypt"
+	"github.com/berkkaradalan/stackflow/config"
 )
 
-func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
+func Migrate(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY,
@@ -28,5 +30,33 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 		}
 	}
 
+	if err := createDefaultAdmin(ctx, pool, cfg); err != nil {
+		return fmt.Errorf("failed to create default admin: %w", err)
+	}
+
 	return nil
+}
+
+func createDefaultAdmin(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error {
+	var exists bool
+	err := pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE role = 'admin')`).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return nil
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(cfg.Env.AdminPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = pool.Exec(ctx, `
+		INSERT INTO users (username, email, password_hash, avatar_url, role, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6)
+	`, cfg.Env.AdminUsername, cfg.Env.AdminEmail, string(hash), "https://github.com/shadcn.png", "admin", true)
+
+	return err
 }

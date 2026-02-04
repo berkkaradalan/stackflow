@@ -20,6 +20,17 @@ type Env struct {
 	JWTSecret          string `env:"JWT_SECRET"`
 	JWTAccessExpiry    int    `env:"JWT_ACCESS_EXPIRY_HOURS" envDefault:"24"`
 	JWTRefreshExpiry   int    `env:"JWT_REFRESH_EXPIRY_DAYS" envDefault:"7"`
+	AdminUsername      string `env:"ADMIN_USERNAME" envDefault:"admin"`
+	AdminEmail         string `env:"ADMIN_EMAIL" envDefault:"admin@localhost"`
+	AdminPassword      string `env:"ADMIN_PASSWORD" envDefault:"admin"`
+}
+
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
 
 func LoadEnv() (*Env, error) {
@@ -28,24 +39,21 @@ func LoadEnv() (*Env, error) {
 	JWTAccessExpiry, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRY_HOURS"))
 	JWTRefreshExpiry, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRY_DAYS"))
 
-	environment := os.Getenv("ENVIRONMENT")
-	if environment == "" {
-		environment = "production"
-	}
-
 	return &Env{
-		Environment:     environment,
-		HostName:        os.Getenv("HOST_NAME"),
-		HostPort:        os.Getenv("HOST_PORT"),
-		DbUser: 		 os.Getenv("DB_USER"),
-		DbPassword: 	 os.Getenv("DB_PASSWORD"),
-		DbHost:			 os.Getenv("DB_HOST"),
-		DbPort:			 os.Getenv("DB_PORT"),
-		DbName:			 os.Getenv("DB_NAME"),
-		DbURL:			 os.Getenv("DB_URL"),
-		JWTSecret: 		 os.Getenv("JWT_SECRET"),
-		JWTAccessExpiry: JWTAccessExpiry,
+		Environment:      getEnv("ENVIRONMENT", "production"),
+		HostName:         getEnv("HOST_NAME", "localhost"),
+		HostPort:         getEnv("HOST_PORT", "8080"),
+		DbUser:           getEnv("DB_USER", "/"),
+		DbPassword:       getEnv("DB_PASSWORD", "/"),
+		DbHost:           getEnv("DB_HOST", "/"),
+		DbPort:           getEnv("DB_PORT", "/"),
+		DbName:           getEnv("DB_NAME", "/"),
+		DbURL:            getEnv("DB_URL", "/"),
+		JWTSecret:        os.Getenv("JWT_SECRET"),
+		JWTAccessExpiry:  JWTAccessExpiry,
 		JWTRefreshExpiry: JWTRefreshExpiry,
-
+		AdminUsername:    getEnv("ADMIN_USERNAME", "admin"),
+		AdminEmail:       getEnv("ADMIN_EMAIL", "admin@localhost"),
+		AdminPassword:    getEnv("ADMIN_PASSWORD", "admin"),
 	}, nil
 }
