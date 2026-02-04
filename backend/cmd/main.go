@@ -12,7 +12,11 @@ import (
 
 	"github.com/berkkaradalan/stackflow/config"
 	"github.com/berkkaradalan/stackflow/database"
+	"github.com/berkkaradalan/stackflow/handler"
+	repository "github.com/berkkaradalan/stackflow/repository/postgres"
 	"github.com/berkkaradalan/stackflow/routes"
+	"github.com/berkkaradalan/stackflow/service"
+	"github.com/berkkaradalan/stackflow/utils"
 )
 
 func main() {
@@ -24,7 +28,6 @@ func main() {
 		log.Fatal("Failed to load config: ", err)
 	}
 
-	// todo - database connection
 	pool, err := database.Connect(ctx, cfg.Env)
 	if err != nil {
 		log.Fatal("Failed to connect to database: ", err)
@@ -35,7 +38,20 @@ func main() {
 		log.Fatal("Failed to run migrations: ", err)
 	}
 
-	router := routes.SetupRouter()
+	jwtManager, err := utils.NewJWTManager(
+		cfg.Env.JWTSecret,
+		cfg.Env.JWTAccessExpiry,
+		cfg.Env.JWTRefreshExpiry,
+	)
+	if err != nil {
+		log.Fatal("Failed to initialize JWT manager: ", err)
+	}
+
+	userRepo := repository.NewUserRepository(pool)
+	authService := service.NewAuthService(userRepo, jwtManager)
+	authHandler := handler.NewAuthHandler(authService)
+
+	router := routes.SetupRouter(jwtManager, authHandler)
 
 
 	srv := &http.Server{

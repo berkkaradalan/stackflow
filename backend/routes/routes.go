@@ -2,10 +2,13 @@ package routes
 
 import (
 	"net/http"
+
+	"github.com/berkkaradalan/stackflow/handler"
+	"github.com/berkkaradalan/stackflow/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(jwtManager *utils.JWTManager,authHandler *handler.AuthHandler) *gin.Engine {
 	router := gin.New()
 	// Add logger and recovery middleware
 	router.Use(gin.Logger())
@@ -64,7 +67,7 @@ func SetupRouter() *gin.Engine {
 
 	api := router.Group("/api")
 	{
-		setupAuthRoutes(api)
+		setupAuthRoutes(api, authHandler, jwtManager)
 		setupUserRoutes(api)
 		setupOrganizationRoutes(api)
 		setupProjectRoutes(api)

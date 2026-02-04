@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -16,10 +17,16 @@ type Env struct {
 	DbPort			string `env:"DB_PORT" envDefault:"/"`
 	DbName			string `env:"DB_NAME" envDefault:"/"`
 	DbURL			string `env:"DB_URL" envDefault:"/"`
+	JWTSecret          string `env:"JWT_SECRET"`
+	JWTAccessExpiry    int    `env:"JWT_ACCESS_EXPIRY_HOURS" envDefault:"24"`
+	JWTRefreshExpiry   int    `env:"JWT_REFRESH_EXPIRY_DAYS" envDefault:"7"`
 }
 
 func LoadEnv() (*Env, error) {
 	_ = godotenv.Load()
+
+	JWTAccessExpiry, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRY_HOURS"))
+	JWTRefreshExpiry, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRY_DAYS"))
 
 	environment := os.Getenv("ENVIRONMENT")
 	if environment == "" {
@@ -36,5 +43,9 @@ func LoadEnv() (*Env, error) {
 		DbPort:			 os.Getenv("DB_PORT"),
 		DbName:			 os.Getenv("DB_NAME"),
 		DbURL:			 os.Getenv("DB_URL"),
+		JWTSecret: 		 os.Getenv("JWT_SECRET"),
+		JWTAccessExpiry: JWTAccessExpiry,
+		JWTRefreshExpiry: JWTRefreshExpiry,
+
 	}, nil
 }
