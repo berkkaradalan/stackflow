@@ -58,3 +58,14 @@ func (r *UserRepository) GetByID(ctx context.Context, id int) (*models.User, err
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) Update(ctx context.Context, user *models.User) error {
+	query := `UPDATE users 
+	          SET username = $1, email = $2, avatar_url = $3, password_hash = $4, updated_at = NOW()
+	          WHERE id = $5
+	          RETURNING updated_at`
+
+	return r.pool.QueryRow(ctx, query,
+		user.Username, user.Email, user.AvatarUrl, user.PasswordHash, user.ID,
+	).Scan(&user.UpdatedAt)
+}

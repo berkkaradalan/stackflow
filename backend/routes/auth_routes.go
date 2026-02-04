@@ -13,13 +13,13 @@ func setupAuthRoutes(
 
 	// Public
 	auth.POST("/login", authHandler.Login)
+	auth.POST("/refresh", authHandler.Refresh)
 
 	// Protected
 	auth.Use(middleware.AuthMiddleware(jwtManager))
 	{
-		auth.POST("/logout")
-		auth.POST("/refresh")
-		auth.GET("/profile")
-		auth.PUT("/profile")
+		auth.POST("/logout", authHandler.Logout)
+		auth.GET("/profile", authHandler.GetProfile)
+		auth.PUT("/profile", authHandler.UpdateProfile)
 	}
 }

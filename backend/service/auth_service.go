@@ -100,11 +100,53 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*u
 	return newTokens, nil
 }
 
+func (s *AuthService) Logout(ctx context.Context, userID int) error {
+	// TODO: Implement token blacklisting with Redis when cacheRepo is enabled
+	// For now, client-side token removal is sufficient
+	return nil
+}
+
 func (s *AuthService) GetProfile(ctx context.Context, userID int) (*models.User, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
+	user.PasswordHash = ""
+	return user, nil
+}
+
+func (s *AuthService) UpdateProfile(ctx context.Context, userID int, req models.UpdateProfileRequest) (*models.User, error) {
+	// Get current user
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update fields if provided
+	utils.SetIfNotEmpty(&user.Username, req.Username)
+	utils.SetIfNotEmpty(&user.Email, req.Email)
+	utils.SetIfNotEmpty(&user.AvatarUrl, req.AvatarUrl)
+
+	// Update password if provided
+	if req.NewPassword != "" {
+		if req.OldPassword == "" {
+			return nil, errors.New("old password is required to change password")
+		}
+		if !utils.CheckPassword(req.OldPassword, user.PasswordHash) {
+			return nil, errors.New("invalid old password")
+		}
+		hashedPassword, err := utils.HashPassword(req.NewPassword)
+		if err != nil {
+			return nil, fmt.Errorf("failed to hash password: %w", err)
+		}
+		user.PasswordHash = hashedPassword
+	}
+
+	// Save updated user
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
 	user.PasswordHash = ""
 	return user, nil
 }
