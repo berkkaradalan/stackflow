@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(jwtManager *utils.JWTManager,authHandler *handler.AuthHandler) *gin.Engine {
+func SetupRouter(jwtManager *utils.JWTManager, authHandler *handler.AuthHandler, userHandler *handler.UserHandler) *gin.Engine {
 	router := gin.New()
 	// Add logger and recovery middleware
 	router.Use(gin.Logger())
@@ -68,7 +68,7 @@ func SetupRouter(jwtManager *utils.JWTManager,authHandler *handler.AuthHandler) 
 	api := router.Group("/api")
 	{
 		setupAuthRoutes(api, authHandler, jwtManager)
-		setupUserRoutes(api)
+		setupUserRoutes(api, userHandler, jwtManager)
 		setupOrganizationRoutes(api)
 		setupProjectRoutes(api)
 		setupTaskRoutes(api)

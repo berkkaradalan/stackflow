@@ -10,11 +10,13 @@ import (
 
 type AuthHandler struct {
 	authService *service.AuthService
+	userService *service.UserService
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
+func NewAuthHandler(authService *service.AuthService, userService *service.UserService) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
+		userService: userService,
 	}
 }
 
@@ -115,4 +117,32 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func (h *AuthHandler) Register(c *gin.Context) {
+	var req models.RegisterWithTokenRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := h.userService.RegisterWithToken(c, &req)
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		if err.Error() == "invalid or expired invite token" ||
+			err.Error() == "invite token already used" ||
+			err.Error() == "invite token expired" {
+			statusCode = http.StatusUnauthorized
+		} else if err.Error() == "email already in use" {
+			statusCode = http.StatusConflict
+		}
+		c.JSON(statusCode, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"user":    user,
+		"message": "Registration successful. You can now login.",
+	})
 }

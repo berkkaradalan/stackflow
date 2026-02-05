@@ -11,12 +11,12 @@ type Env struct {
 	Environment     string `env:"ENVIRONMENT" envDefault:"production"`
 	HostName        string `env:"HOST_NAME" envDefault:"localhost"`
 	HostPort        string `env:"HOST_PORT" envDefault:"8080"`
-	DbUser			string `env:"DB_PASSWORD" envDefault:"/"`
-	DbPassword 		string `env:"DB_PASSWORD" envDefault:"/"`
-	DbHost			string `env:"DB_HOST" envDefault:"/"`
-	DbPort			string `env:"DB_PORT" envDefault:"/"`
-	DbName			string `env:"DB_NAME" envDefault:"/"`
-	DbURL			string `env:"DB_URL" envDefault:"/"`
+	DbUser			string `env:"DB_USER" envDefault:""`
+	DbPassword 		string `env:"DB_PASSWORD" envDefault:""`
+	DbHost			string `env:"DB_HOST" envDefault:""`
+	DbPort			string `env:"DB_PORT" envDefault:""`
+	DbName			string `env:"DB_NAME" envDefault:""`
+	DbURL			string `env:"DB_URL" envDefault:""`
 	JWTSecret          string `env:"JWT_SECRET"`
 	JWTAccessExpiry    int    `env:"JWT_ACCESS_EXPIRY_HOURS" envDefault:"24"`
 	JWTRefreshExpiry   int    `env:"JWT_REFRESH_EXPIRY_DAYS" envDefault:"7"`
@@ -43,12 +43,12 @@ func LoadEnv() (*Env, error) {
 		Environment:      getEnv("ENVIRONMENT", "production"),
 		HostName:         getEnv("HOST_NAME", "localhost"),
 		HostPort:         getEnv("HOST_PORT", "8080"),
-		DbUser:           getEnv("DB_USER", "/"),
-		DbPassword:       getEnv("DB_PASSWORD", "/"),
-		DbHost:           getEnv("DB_HOST", "/"),
-		DbPort:           getEnv("DB_PORT", "/"),
-		DbName:           getEnv("DB_NAME", "/"),
-		DbURL:            getEnv("DB_URL", "/"),
+		DbUser:           getEnv("DB_USER", ""),
+		DbPassword:       getEnv("DB_PASSWORD", ""),
+		DbHost:           getEnv("DB_HOST", ""),
+		DbPort:           getEnv("DB_PORT", ""),
+		DbName:           getEnv("DB_NAME", ""),
+		DbURL:            getEnv("DB_URL", ""),
 		JWTSecret:        os.Getenv("JWT_SECRET"),
 		JWTAccessExpiry:  JWTAccessExpiry,
 		JWTRefreshExpiry: JWTRefreshExpiry,

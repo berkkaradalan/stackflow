@@ -14,6 +14,7 @@ func setupAuthRoutes(
 	// Public
 	auth.POST("/login", authHandler.Login)
 	auth.POST("/refresh", authHandler.Refresh)
+	auth.POST("/register", authHandler.Register)
 
 	// Protected
 	auth.Use(middleware.AuthMiddleware(jwtManager))

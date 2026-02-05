@@ -21,7 +21,19 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error 
 			is_active BOOLEAN DEFAULT true,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		)`,		
+		)`,
+		`CREATE TABLE IF NOT EXISTS invite_tokens (
+			id SERIAL PRIMARY KEY,
+			email VARCHAR(255) NOT NULL,
+			username VARCHAR(255) NOT NULL,
+			role VARCHAR(50) NOT NULL DEFAULT 'user',
+			token VARCHAR(255) UNIQUE NOT NULL,
+			expires_at TIMESTAMP NOT NULL,
+			used_at TIMESTAMP,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_invite_tokens_token ON invite_tokens(token)`,
+		`CREATE INDEX IF NOT EXISTS idx_invite_tokens_email ON invite_tokens(email)`,
 	}
 
 	for i, query := range queries {

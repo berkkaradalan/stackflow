@@ -48,10 +48,15 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepository(pool)
-	authService := service.NewAuthService(userRepo, jwtManager)
-	authHandler := handler.NewAuthHandler(authService)
+	inviteTokenRepo := repository.NewInviteTokenRepository(pool)
 
-	router := routes.SetupRouter(jwtManager, authHandler)
+	authService := service.NewAuthService(userRepo, jwtManager)
+	userService := service.NewUserService(userRepo, inviteTokenRepo)
+
+	authHandler := handler.NewAuthHandler(authService, userService)
+	userHandler := handler.NewUserHandler(userService)
+
+	router := routes.SetupRouter(jwtManager, authHandler, userHandler)
 
 
 	srv := &http.Server{
