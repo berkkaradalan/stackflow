@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAgents } from "@/hooks/use-agents";
 import { useProjects } from "@/hooks/use-projects";
+import { providersApi, type ProviderConfig, type ModelConfig } from "@/lib/api/providers";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -74,18 +75,6 @@ const LEVELS = [
   { value: "senior", label: "Senior" },
 ];
 
-const PROVIDERS = [
-  { value: "openrouter", label: "OpenRouter" },
-  { value: "openai", label: "OpenAI" },
-  { value: "anthropic", label: "Anthropic" },
-  { value: "gemini", label: "Gemini" },
-  { value: "groq", label: "Groq" },
-  { value: "together", label: "Together" },
-  { value: "glm", label: "GLM" },
-  { value: "claude", label: "Claude" },
-  { value: "kimi", label: "Kimi" },
-];
-
 export default function AgentsPage() {
   const router = useRouter();
   const {
@@ -103,6 +92,11 @@ export default function AgentsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+
+  // Provider and model management
+  const [providers, setProviders] = useState<ProviderConfig[]>([]);
+  const [availableModels, setAvailableModels] = useState<ModelConfig[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
 
   const [createForm, setCreateForm] = useState<CreateAgentRequest>({
     name: "",
@@ -125,7 +119,38 @@ export default function AgentsPage() {
   useEffect(() => {
     fetchAgents();
     fetchProjects();
+    loadProviders();
   }, [fetchAgents, fetchProjects]);
+
+  const loadProviders = async () => {
+    try {
+      const response = await providersApi.getAll();
+      setProviders(response.providers);
+
+      // Load models for default provider (openai)
+      if (response.providers.length > 0) {
+        const defaultProvider = response.providers.find(p => p.name === "openai") || response.providers[0];
+        setAvailableModels(defaultProvider.models);
+      }
+    } catch (err) {
+      console.error("Failed to load providers:", err);
+    }
+  };
+
+  const handleProviderChange = async (providerName: string) => {
+    setCreateForm({ ...createForm, provider: providerName as any, model: "" });
+    setIsLoadingModels(true);
+
+    try {
+      const response = await providersApi.getModels(providerName);
+      setAvailableModels(response.models);
+    } catch (err) {
+      console.error("Failed to load models:", err);
+      setAvailableModels([]);
+    } finally {
+      setIsLoadingModels(false);
+    }
+  };
 
   const filteredAgents = (agents || []).filter(
     (agent) =>
@@ -452,18 +477,16 @@ export default function AgentsPage() {
                   <Label htmlFor="provider">Provider *</Label>
                   <Select
                     value={createForm.provider}
-                    onValueChange={(value: any) =>
-                      setCreateForm({ ...createForm, provider: value })
-                    }
+                    onValueChange={handleProviderChange}
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select a provider" />
                     </SelectTrigger>
                     <SelectContent>
-                      {PROVIDERS.map((provider) => (
-                        <SelectItem key={provider.value} value={provider.value}>
-                          {provider.label}
+                      {providers.map((provider) => (
+                        <SelectItem key={provider.name} value={provider.name}>
+                          {provider.display_name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -472,15 +495,33 @@ export default function AgentsPage() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="model">Model *</Label>
-                  <Input
-                    id="model"
+                  <Select
                     value={createForm.model}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, model: e.target.value })
+                    onValueChange={(value) =>
+                      setCreateForm({ ...createForm, model: value })
                     }
-                    placeholder="gpt-4, claude-3-opus, etc."
                     required
-                  />
+                    disabled={isLoadingModels || availableModels.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={isLoadingModels ? "Loading models..." : "Select a model"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{model.name}</span>
+                            <span className="text-xs text-muted-foreground">{model.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {createForm.model && availableModels.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {availableModels.find(m => m.id === createForm.model)?.max_tokens.toLocaleString()} max tokens
+                    </p>
+                  )}
                 </div>
               </div>
 

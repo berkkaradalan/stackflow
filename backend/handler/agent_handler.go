@@ -209,6 +209,7 @@ func (h *AgentHandler) GetAgentPerformance(c *gin.Context) {
 }
 
 // HealthCheck handles GET /api/agents/:id/health
+// Performs a real API test to the provider to verify connectivity
 func (h *AgentHandler) HealthCheck(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -219,9 +220,10 @@ func (h *AgentHandler) HealthCheck(c *gin.Context) {
 		return
 	}
 
-	health, err := h.agentService.HealthCheck(ctx, id)
+	// Perform real health check with actual API test
+	health, err := h.agentService.PerformRealHealthCheck(ctx, id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Agent not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

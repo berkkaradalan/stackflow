@@ -94,6 +94,7 @@ export interface AgentHealthResponse {
   updated_at: string;
   healthy: boolean;
   message: string;
+  test_response?: string;
 }
 
 export const agentsApi = {

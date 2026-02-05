@@ -1,0 +1,240 @@
+package config
+
+import "github.com/berkkaradalan/stackflow/models"
+
+// GetProviderRegistry returns all available providers with their configurations
+func GetProviderRegistry() []models.ProviderConfig {
+	return []models.ProviderConfig{
+		{
+			Name:               "zai",
+			DisplayName:        "Z.AI",
+			BaseURL:            "https://api.z.ai/api/paas/v4",
+			HealthCheckPath:    "/models",
+			ChatCompletionPath: "/chat/completions",
+			RequiresAPIKey:     true,
+			Models: []models.ModelConfig{
+				{
+					ID:                   "glm-4.7",
+					Name:                 "GLM-4.7",
+					Description:          "Latest GLM model (Jan 2025)",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  1.0,
+					OutputPricePerMToken: 1.0,
+				},
+				{
+					ID:                   "glm-4.7-flash",
+					Name:                 "GLM-4.7 Flash",
+					Description:          "Fast GLM-4.7 variant",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       false,
+					InputPricePerMToken:  0.5,
+					OutputPricePerMToken: 0.5,
+				},
+				{
+					ID:                   "glm-4.6",
+					Name:                 "GLM-4.6",
+					Description:          "GLM model from Dec 2024",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  1.0,
+					OutputPricePerMToken: 1.0,
+				},
+				{
+					ID:                   "glm-4.5",
+					Name:                 "GLM-4.5",
+					Description:          "Stable GLM-4.5 model",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  1.0,
+					OutputPricePerMToken: 1.0,
+				},
+				{
+					ID:                   "glm-4.5-air",
+					Name:                 "GLM-4.5 Air",
+					Description:          "Lightweight GLM-4.5 variant",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       false,
+					InputPricePerMToken:  0.5,
+					OutputPricePerMToken: 0.5,
+				},
+			},
+		},
+		{
+			Name:               "anthropic",
+			DisplayName:        "Anthropic",
+			BaseURL:            "https://api.anthropic.com/v1",
+			HealthCheckPath:    "/messages",
+			ChatCompletionPath: "/messages",
+			RequiresAPIKey:     true,
+			Models: []models.ModelConfig{
+				{
+					ID:                   "claude-opus-4-5-20251101",
+					Name:                 "Claude Opus 4.5",
+					Description:          "Most capable Claude model",
+					MaxTokens:            200000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  15.0,
+					OutputPricePerMToken: 75.0,
+				},
+				{
+					ID:                   "claude-sonnet-4-5-20250929",
+					Name:                 "Claude Sonnet 4.5",
+					Description:          "Balanced performance and speed",
+					MaxTokens:            200000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  3.0,
+					OutputPricePerMToken: 15.0,
+				},
+				{
+					ID:                   "claude-haiku-4-5-20251001",
+					Name:                 "Claude Haiku 4.5",
+					Description:          "Fastest Claude model",
+					MaxTokens:            200000,
+					SupportsStreaming:    true,
+					SupportsVision:       false,
+					InputPricePerMToken:  0.8,
+					OutputPricePerMToken: 4.0,
+				},
+			},
+		},
+		{
+			Name:               "gemini",
+			DisplayName:        "Google Gemini",
+			BaseURL:            "https://generativelanguage.googleapis.com/v1beta",
+			HealthCheckPath:    "/models",
+			ChatCompletionPath: "/models/{model}:generateContent",
+			RequiresAPIKey:     true,
+			Models: []models.ModelConfig{
+				{
+					ID:                   "gemini-2.0-flash-exp",
+					Name:                 "Gemini 2.0 Flash (Experimental)",
+					Description:          "Latest experimental Gemini model",
+					MaxTokens:            1000000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  0.0,
+					OutputPricePerMToken: 0.0,
+				},
+				{
+					ID:                   "gemini-1.5-pro",
+					Name:                 "Gemini 1.5 Pro",
+					Description:          "Most capable Gemini 1.5 model",
+					MaxTokens:            2000000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  1.25,
+					OutputPricePerMToken: 5.0,
+				},
+				{
+					ID:                   "gemini-1.5-flash",
+					Name:                 "Gemini 1.5 Flash",
+					Description:          "Fast and efficient Gemini model",
+					MaxTokens:            1000000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  0.075,
+					OutputPricePerMToken: 0.3,
+				},
+			},
+		},
+		{
+			Name:               "kimi",
+			DisplayName:        "Kimi (Moonshot AI)",
+			BaseURL:            "https://api.moonshot.cn/v1",
+			HealthCheckPath:    "/models",
+			ChatCompletionPath: "/chat/completions",
+			RequiresAPIKey:     true,
+			Models: []models.ModelConfig{
+				{
+					ID:                   "moonshot-v1-128k",
+					Name:                 "Moonshot v1 128K",
+					Description:          "Moonshot model with 128K context",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       false,
+					InputPricePerMToken:  12.0,
+					OutputPricePerMToken: 12.0,
+				},
+				{
+					ID:                   "moonshot-v1-32k",
+					Name:                 "Moonshot v1 32K",
+					Description:          "Moonshot model with 32K context",
+					MaxTokens:            32000,
+					SupportsStreaming:    true,
+					SupportsVision:       false,
+					InputPricePerMToken:  24.0,
+					OutputPricePerMToken: 24.0,
+				},
+			},
+		},
+		{
+			Name:               "openrouter",
+			DisplayName:        "OpenRouter",
+			BaseURL:            "https://openrouter.ai/api/v1",
+			HealthCheckPath:    "/models",
+			ChatCompletionPath: "/chat/completions",
+			RequiresAPIKey:     true,
+			Models: []models.ModelConfig{
+				{
+					ID:                   "anthropic/claude-opus-4-5",
+					Name:                 "Claude Opus 4.5 (via OpenRouter)",
+					Description:          "Access Claude Opus 4.5 through OpenRouter",
+					MaxTokens:            200000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  15.0,
+					OutputPricePerMToken: 75.0,
+				},
+				{
+					ID:                   "anthropic/claude-sonnet-4-5",
+					Name:                 "Claude Sonnet 4.5 (via OpenRouter)",
+					Description:          "Access Claude Sonnet 4.5 through OpenRouter",
+					MaxTokens:            200000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  3.0,
+					OutputPricePerMToken: 15.0,
+				},
+				{
+					ID:                   "openai/gpt-4-turbo",
+					Name:                 "GPT-4 Turbo (via OpenRouter)",
+					Description:          "Access GPT-4 Turbo through OpenRouter",
+					MaxTokens:            128000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  10.0,
+					OutputPricePerMToken: 30.0,
+				},
+				{
+					ID:                   "google/gemini-2.0-flash-exp:free",
+					Name:                 "Gemini 2.0 Flash (Free via OpenRouter)",
+					Description:          "Free access to Gemini 2.0 Flash",
+					MaxTokens:            1000000,
+					SupportsStreaming:    true,
+					SupportsVision:       true,
+					InputPricePerMToken:  0.0,
+					OutputPricePerMToken: 0.0,
+				},
+			},
+		},
+	}
+}
+
+// GetProviderByName returns a specific provider configuration by name
+func GetProviderByName(name string) *models.ProviderConfig {
+	providers := GetProviderRegistry()
+	for _, provider := range providers {
+		if provider.Name == name {
+			return &provider
+		}
+	}
+	return nil
+}

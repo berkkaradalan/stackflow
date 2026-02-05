@@ -45,6 +45,7 @@ export default function AgentDetailPage() {
   const [workload, setWorkload] = useState<AgentWorkloadResponse | null>(null);
   const [performance, setPerformance] = useState<AgentPerformanceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingHealth, setIsCheckingHealth] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,11 +76,20 @@ export default function AgentDetailPage() {
   }, [agentId, fetchAgentById, healthCheck, getWorkload, getPerformance]);
 
   const handleHealthCheck = async () => {
+    setIsCheckingHealth(true);
     try {
       const healthData = await healthCheck(agentId);
       setHealth(healthData);
+
+      // Also update agent status if it changed
+      if (agent && healthData.status !== agent.status) {
+        setAgent({ ...agent, status: healthData.status });
+      }
     } catch (err) {
       console.error("Health check failed:", err);
+      setError(err instanceof Error ? err.message : "Health check failed");
+    } finally {
+      setIsCheckingHealth(false);
     }
   };
 
@@ -229,9 +239,23 @@ export default function AgentDetailPage() {
                 </CardTitle>
                 <CardDescription>{health.message}</CardDescription>
               </div>
-              <Button onClick={handleHealthCheck} variant="outline" size="sm">
-                <Activity className="mr-2 h-4 w-4" />
-                Check Health
+              <Button
+                onClick={handleHealthCheck}
+                variant="outline"
+                size="sm"
+                disabled={isCheckingHealth}
+              >
+                {isCheckingHealth ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Testing API...
+                  </>
+                ) : (
+                  <>
+                    <Activity className="mr-2 h-4 w-4" />
+                    Check Health
+                  </>
+                )}
               </Button>
             </div>
           </CardHeader>
@@ -266,6 +290,33 @@ export default function AgentDetailPage() {
                 </p>
               </div>
             </div>
+            {health.test_response && (
+              <>
+                <Separator className="my-4" />
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Live API Response
+                  </p>
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarImage
+                        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${agent.name}`}
+                        alt={agent.name}
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                        {agent.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 rounded-2xl rounded-tl-none bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 p-4">
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {health.test_response}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       )}

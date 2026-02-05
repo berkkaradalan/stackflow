@@ -41,7 +41,7 @@ type CreateAgentRequest struct {
 	ProjectID   int         `json:"project_id" binding:"required"`
 	Role        string      `json:"role" binding:"required,oneof=backend_developer frontend_developer fullstack_developer tester devops project_manager"`
 	Level       string      `json:"level" binding:"required,oneof=junior mid senior"`
-	Provider    string      `json:"provider" binding:"required,oneof=openrouter openai anthropic gemini groq together glm claude kimi"`
+	Provider    string      `json:"provider" binding:"required,oneof=openrouter anthropic gemini kimi zai"`
 	Model       string      `json:"model" binding:"required"`
 	APIKey      string      `json:"api_key" binding:"required"`
 	Config      AgentConfig `json:"config"`
@@ -53,7 +53,7 @@ type UpdateAgentRequest struct {
 	Description *string      `json:"description" binding:"omitempty,max=500"`
 	Role        *string      `json:"role" binding:"omitempty,oneof=backend_developer frontend_developer fullstack_developer tester devops project_manager"`
 	Level       *string      `json:"level" binding:"omitempty,oneof=junior mid senior"`
-	Provider    *string      `json:"provider" binding:"omitempty,oneof=openrouter openai anthropic gemini groq together glm claude kimi"`
+	Provider    *string      `json:"provider" binding:"omitempty,oneof=openrouter anthropic gemini kimi zai"`
 	Model       *string      `json:"model" binding:"omitempty"`
 	APIKey      *string      `json:"api_key" binding:"omitempty"`
 	Config      *AgentConfig `json:"config" binding:"omitempty"`
@@ -106,4 +106,5 @@ type AgentHealthResponse struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 	Healthy      bool       `json:"healthy"`
 	Message      string     `json:"message"`
+	TestResponse string     `json:"test_response,omitempty"` // AI's response to health check test
 }
