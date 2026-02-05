@@ -7,6 +7,7 @@ const AUTH_ENDPOINTS = {
   LOGOUT: "/api/auth/logout",
   REFRESH: "/api/auth/refresh",
   ME: "/api/auth/me",
+  PROFILE: "/api/auth/profile",
 } as const;
 
 /**
@@ -41,6 +42,18 @@ export async function logout(): Promise<void> {
   }
 }
 
+interface ProfileResponse {
+  user: User;
+}
+
+export interface UpdateProfileData {
+  username?: string;
+  email?: string;
+  avatar_url?: string;
+  old_password?: string;
+  new_password?: string;
+}
+
 /**
  * Get current user profile
  */
@@ -51,6 +64,28 @@ export async function getCurrentUser(): Promise<User | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Get user profile from /api/auth/profile endpoint
+ * Response format: { user: { id, username, email, avatar_url, role, is_active, created_at, updated_at } }
+ */
+export async function getUserProfile(): Promise<User | null> {
+  try {
+    const response = await api.get<ProfileResponse>(AUTH_ENDPOINTS.PROFILE);
+    return response.user;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Update user profile
+ * PUT /api/auth/profile
+ */
+export async function updateProfile(data: UpdateProfileData): Promise<User> {
+  const response = await api.put<ProfileResponse>(AUTH_ENDPOINTS.PROFILE, data);
+  return response.user;
 }
 
 /**

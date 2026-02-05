@@ -24,14 +24,11 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useAuth } from "@/hooks/use-auth"
+import { Skeleton } from "@/components/ui/skeleton"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+// Static navigation data
+const navData = {
   teams: [
     {
       name: "Acme Inc",
@@ -156,17 +153,38 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, isLoading } = useAuth()
+
+  // Transform user data from API format to component format
+  const userData = user
+    ? {
+        name: user.username,
+        email: user.email,
+        avatar: user.avatar_url,
+      }
+    : null
+
   return (
     <Sidebar collapsible="icon" {...props}>
       {/* <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={navData.teams} />
       </SidebarHeader> */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={navData.navMain} />
+        <NavProjects projects={navData.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {isLoading ? (
+          <div className="flex items-center gap-3 px-3 py-2">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <div className="flex flex-col gap-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+        ) : userData ? (
+          <NavUser user={userData} />
+        ) : null}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

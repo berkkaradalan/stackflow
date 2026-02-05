@@ -10,8 +10,9 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import type { User, LoginCredentials } from "@/lib/auth/types";
-import { login as loginService, logout as logoutService } from "@/lib/auth/service";
-import { getStoredUser, hasAuthTokens, clearAuthData } from "@/lib/auth/storage";
+import { login as loginService, logout as logoutService, getUserProfile, updateProfile as updateProfileService } from "@/lib/auth/service";
+import type { UpdateProfileData } from "@/lib/auth/service";
+import { getStoredUser, hasAuthTokens, clearAuthData, setAuthData } from "@/lib/auth/storage";
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +20,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: UpdateProfileData) => Promise<void>;
   error: string | null;
 }
 
@@ -30,13 +32,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Initialize auth state from storage
+  // Initialize auth state from storage and fetch fresh profile
   useEffect(() => {
-    const storedUser = getStoredUser();
-    if (storedUser && hasAuthTokens()) {
-      setUser(storedUser);
-    }
-    setIsLoading(false);
+    const initializeAuth = async () => {
+      const storedUser = getStoredUser();
+      
+      if (hasAuthTokens()) {
+        // Fetch fresh profile data from API
+        const freshUser = await getUserProfile();
+        if (freshUser) {
+          setUser(freshUser);
+          // Update stored user data
+          const tokens = {
+            access_token: localStorage.getItem("access_token") || "",
+            refresh_token: localStorage.getItem("refresh_token") || "",
+          };
+          setAuthData(tokens, freshUser);
+        } else if (storedUser) {
+          // Fallback to stored user if API fails
+          setUser(storedUser);
+        }
+      }
+      
+      setIsLoading(false);
+    };
+    
+    initializeAuth();
   }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
@@ -69,12 +90,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [router]);
 
+  const updateProfile = useCallback(async (data: UpdateProfileData) => {
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      const updatedUser = await updateProfileService(data);
+      setUser(updatedUser);
+      // Update stored user data
+      const tokens = {
+        access_token: localStorage.getItem("access_token") || "",
+        refresh_token: localStorage.getItem("refresh_token") || "",
+      };
+      setAuthData(tokens, updatedUser);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update profile";
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: !!user,
     login,
     logout,
+    updateProfile,
     error,
   };
 
