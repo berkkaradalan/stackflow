@@ -151,6 +151,27 @@ func (s *UserService) InviteUser(ctx context.Context, req *models.InviteUserRequ
 	}, nil
 }
 
+// GetInviteTokenByToken validates and returns invite token details
+func (s *UserService) GetInviteTokenByToken(ctx context.Context, token string) (*models.InviteToken, error) {
+	// Get invite token
+	inviteToken, err := s.inviteTokenRepo.GetByToken(ctx, token)
+	if err != nil {
+		return nil, errors.New("invalid or expired invite token")
+	}
+
+	// Check if already used
+	if inviteToken.UsedAt != nil {
+		return nil, errors.New("invite token already used")
+	}
+
+	// Check if expired
+	if time.Now().After(inviteToken.ExpiresAt) {
+		return nil, errors.New("invite token expired")
+	}
+
+	return inviteToken, nil
+}
+
 // RegisterWithToken registers a user using an invite token
 func (s *UserService) RegisterWithToken(ctx context.Context, req *models.RegisterWithTokenRequest) (*models.User, error) {
 	// Get invite token

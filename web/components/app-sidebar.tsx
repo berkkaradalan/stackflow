@@ -12,6 +12,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  Users,
 } from "lucide-react"
 
 import { NavMain } from "./nav-main"
@@ -23,9 +24,15 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { Skeleton } from "@/components/ui/skeleton"
+import Link from "next/link"
 
 // Static navigation data
 const navData = {
@@ -164,13 +171,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       }
     : null
 
+  // Add User Management for admin users
+  const navMainItems = React.useMemo(() => {
+    const items = [...navData.navMain]
+
+    if (user?.role === "admin") {
+      items.push({
+        title: "User Management",
+        url: "/users",
+        icon: Users,
+        items: [
+          {
+            title: "All Users",
+            url: "/users",
+          },
+        ],
+      })
+    }
+
+    return items
+  }, [user?.role])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       {/* <SidebarHeader>
         <TeamSwitcher teams={navData.teams} />
       </SidebarHeader> */}
       <SidebarContent>
-        <NavMain items={navData.navMain} />
+        <NavMain items={navMainItems} />
         <NavProjects projects={navData.projects} />
       </SidebarContent>
       <SidebarFooter>

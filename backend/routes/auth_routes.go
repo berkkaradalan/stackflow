@@ -15,6 +15,7 @@ func setupAuthRoutes(
 	auth.POST("/login", authHandler.Login)
 	auth.POST("/refresh", authHandler.Refresh)
 	auth.POST("/register", authHandler.Register)
+	auth.GET("/validate-invite-token", authHandler.ValidateInviteToken)
 
 	// Protected
 	auth.Use(middleware.AuthMiddleware(jwtManager))

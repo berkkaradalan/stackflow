@@ -119,6 +119,28 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
+// ValidateInviteToken validates an invite token and returns the invitation details
+func (h *AuthHandler) ValidateInviteToken(c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token is required"})
+		return
+	}
+
+	inviteToken, err := h.userService.GetInviteTokenByToken(c, token)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "invalid or expired invite token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"email":      inviteToken.Email,
+		"username":   inviteToken.Username,
+		"role":       inviteToken.Role,
+		"expires_at": inviteToken.ExpiresAt,
+	})
+}
+
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req models.RegisterWithTokenRequest
 
