@@ -186,6 +186,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
         ],
       },
+      {
+        title: "AI Agents",
+        url: "/agents",
+        icon: Bot,
+        items: [
+          {
+            title: "All Agents",
+            url: "/agents",
+          },
+        ],
+      },
       ...navData.navMain,
     ]
 

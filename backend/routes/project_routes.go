@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupProjectRoutes(r *gin.RouterGroup, projectHandler *handler.ProjectHandler, jwtManager *utils.JWTManager) {
+func setupProjectRoutes(r *gin.RouterGroup, projectHandler *handler.ProjectHandler, agentHandler *handler.AgentHandler, jwtManager *utils.JWTManager) {
 	projects := r.Group("/projects")
 
 	projects.Use(middleware.AuthMiddleware(jwtManager))
@@ -18,5 +18,6 @@ func setupProjectRoutes(r *gin.RouterGroup, projectHandler *handler.ProjectHandl
 		projects.PUT("/:id", projectHandler.UpdateProject)
 		projects.DELETE("/:id", projectHandler.DeleteProject)
 		projects.GET("/:id/stats", projectHandler.GetProjectStats)
+		projects.GET("/:id/agents", agentHandler.GetAgentsByProjectID)
 	}
 }

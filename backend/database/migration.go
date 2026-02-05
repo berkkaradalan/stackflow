@@ -45,6 +45,38 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error 
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_projects_created_by ON projects(created_by)`,
 		`CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status)`,
+		`CREATE TABLE IF NOT EXISTS agents (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(100) NOT NULL,
+			description TEXT,
+			project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+			created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			role VARCHAR(50) NOT NULL,
+			level VARCHAR(20) NOT NULL,
+			provider VARCHAR(50) NOT NULL,
+			model VARCHAR(100) NOT NULL,
+			api_key TEXT NOT NULL,
+			config JSONB DEFAULT '{
+				"temperature": 0.7,
+				"max_tokens": 2000,
+				"top_p": 1.0,
+				"frequency_penalty": 0.0,
+				"presence_penalty": 0.0
+			}'::jsonb,
+			status VARCHAR(50) NOT NULL DEFAULT 'idle',
+			is_active BOOLEAN DEFAULT true,
+			last_active_at TIMESTAMP,
+			total_tokens_used BIGINT DEFAULT 0,
+			total_cost DECIMAL(10, 4) DEFAULT 0.0,
+			total_requests BIGINT DEFAULT 0,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_agents_project_id ON agents(project_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_agents_created_by ON agents(created_by)`,
+		`CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status)`,
+		`CREATE INDEX IF NOT EXISTS idx_agents_role ON agents(role)`,
+		`CREATE INDEX IF NOT EXISTS idx_agents_provider ON agents(provider)`,
 	}
 
 	for i, query := range queries {
