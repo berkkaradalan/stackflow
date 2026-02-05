@@ -13,6 +13,7 @@ import {
   Settings2,
   SquareTerminal,
   Users,
+  FolderKanban,
 } from "lucide-react"
 
 import { NavMain } from "./nav-main"
@@ -171,9 +172,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       }
     : null
 
-  // Add User Management for admin users
+  // Add User Management for admin users and Projects for all users
   const navMainItems = React.useMemo(() => {
-    const items = [...navData.navMain]
+    const items = [
+      {
+        title: "Projects",
+        url: "/projects",
+        icon: FolderKanban,
+        items: [
+          {
+            title: "All Projects",
+            url: "/projects",
+          },
+        ],
+      },
+      ...navData.navMain,
+    ]
 
     if (user?.role === "admin") {
       items.push({

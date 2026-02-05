@@ -34,6 +34,17 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error 
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_invite_tokens_token ON invite_tokens(token)`,
 		`CREATE INDEX IF NOT EXISTS idx_invite_tokens_email ON invite_tokens(email)`,
+		`CREATE TABLE IF NOT EXISTS projects (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(100) NOT NULL,
+			description TEXT,
+			status VARCHAR(50) NOT NULL DEFAULT 'active',
+			created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_created_by ON projects(created_by)`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status)`,
 	}
 
 	for i, query := range queries {
