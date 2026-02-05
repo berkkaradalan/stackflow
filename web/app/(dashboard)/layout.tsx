@@ -1,5 +1,8 @@
 "use client";
 
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { useRequireAuth } from "@/hooks/use-auth";
 
 export default function DashboardLayout({
@@ -24,9 +27,14 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen">
-      {/* TODO: Add sidebar/navigation here */}
-      <main>{children}</main>
-    </div>
+    <TooltipProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <main className="flex-1 p-6">
+          <SidebarTrigger className="mb-4" />
+          {children}
+        </main>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }
