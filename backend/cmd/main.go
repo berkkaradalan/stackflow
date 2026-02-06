@@ -51,20 +51,23 @@ func main() {
 	inviteTokenRepo := repository.NewInviteTokenRepository(pool)
 	projectRepo := repository.NewProjectRepository(pool)
 	agentRepo := repository.NewAgentRepository(pool)
+	taskRepo := repository.NewTaskRepository(pool)
 
 	authService := service.NewAuthService(userRepo, jwtManager)
 	userService := service.NewUserService(userRepo, inviteTokenRepo)
 	projectService := service.NewProjectService(projectRepo)
 	agentService := service.NewAgentService(agentRepo)
 	providerService := service.NewProviderService()
+	taskService := service.NewTaskService(taskRepo, agentRepo, userRepo, projectRepo)
 
 	authHandler := handler.NewAuthHandler(authService, userService)
 	userHandler := handler.NewUserHandler(userService)
 	projectHandler := handler.NewProjectHandler(projectService)
 	agentHandler := handler.NewAgentHandler(agentService)
 	providerHandler := handler.NewProviderHandler(providerService)
+	taskHandler := handler.NewTaskHandler(taskService)
 
-	router := routes.SetupRouter(jwtManager, authHandler, userHandler, projectHandler, agentHandler, providerHandler)
+	router := routes.SetupRouter(jwtManager, authHandler, userHandler, projectHandler, agentHandler, providerHandler, taskHandler)
 
 
 	srv := &http.Server{

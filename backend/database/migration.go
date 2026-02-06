@@ -77,6 +77,41 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error 
 		`CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status)`,
 		`CREATE INDEX IF NOT EXISTS idx_agents_role ON agents(role)`,
 		`CREATE INDEX IF NOT EXISTS idx_agents_provider ON agents(provider)`,
+		`CREATE TABLE IF NOT EXISTS tasks (
+			id SERIAL PRIMARY KEY,
+			project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+			title VARCHAR(200) NOT NULL,
+			description TEXT,
+			status VARCHAR(50) NOT NULL DEFAULT 'open',
+			priority VARCHAR(20) NOT NULL DEFAULT 'medium',
+			assigned_agent_id INTEGER REFERENCES agents(id) ON DELETE SET NULL,
+			reviewer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+			created_by INTEGER NOT NULL,
+			creator_type VARCHAR(10) NOT NULL DEFAULT 'user',
+			tags JSONB DEFAULT '[]'::jsonb,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)`,
+		`CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority)`,
+		`CREATE INDEX IF NOT EXISTS idx_tasks_assigned_agent_id ON tasks(assigned_agent_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_tasks_reviewer_id ON tasks(reviewer_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_tasks_created_by ON tasks(created_by)`,
+		`CREATE TABLE IF NOT EXISTS task_activities (
+			id SERIAL PRIMARY KEY,
+			task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+			actor_id INTEGER NOT NULL,
+			actor_type VARCHAR(10) NOT NULL DEFAULT 'user',
+			action VARCHAR(50) NOT NULL,
+			old_value TEXT,
+			new_value TEXT,
+			message TEXT,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_task_activities_task_id ON task_activities(task_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_task_activities_actor_id ON task_activities(actor_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_task_activities_action ON task_activities(action)`,
 	}
 
 	for i, query := range queries {

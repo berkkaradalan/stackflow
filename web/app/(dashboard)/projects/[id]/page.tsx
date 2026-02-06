@@ -24,6 +24,7 @@ import {
   Bot,
   Workflow,
 } from "lucide-react";
+import { TaskKanban } from "@/components/task-kanban";
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -255,16 +256,8 @@ export default function ProjectDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Empty State for Future Features */}
-      <Card>
-        <CardContent className="flex min-h-[200px] flex-col items-center justify-center text-center">
-          <Activity className="mb-4 h-12 w-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">Coming Soon</h3>
-          <p className="text-sm text-muted-foreground">
-            Tasks, agents, and workflow management features will be added here
-          </p>
-        </CardContent>
-      </Card>
+      {/* Task Kanban Board */}
+      <TaskKanban projectId={projectId} />
     </div>
   );
 }

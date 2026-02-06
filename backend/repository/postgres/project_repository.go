@@ -124,13 +124,36 @@ func (r *ProjectRepository) Delete(ctx context.Context, id int) error {
 }
 
 func (r *ProjectRepository) GetStats(ctx context.Context, projectID int) (*models.ProjectStats, error) {
-	// For now, return empty stats. You can implement this later with actual task/agent/workflow tables
-	stats := &models.ProjectStats{
-		TotalTasks:      0,
-		CompletedTasks:  0,
-		PendingTasks:    0,
-		TotalAgents:     0,
-		TotalWorkflows:  0,
+	stats := &models.ProjectStats{}
+
+	// Get task counts
+	taskQuery := `SELECT
+		COUNT(*) as total,
+		COUNT(*) FILTER (WHERE status IN ('done', 'closed')) as completed,
+		COUNT(*) FILTER (WHERE status IN ('open', 'in_progress')) as pending
+	FROM tasks WHERE project_id = $1`
+
+	err := r.pool.QueryRow(ctx, taskQuery, projectID).Scan(
+		&stats.TotalTasks,
+		&stats.CompletedTasks,
+		&stats.PendingTasks,
+	)
+	if err != nil {
+		// If tasks table doesn't exist yet, use zeros
+		stats.TotalTasks = 0
+		stats.CompletedTasks = 0
+		stats.PendingTasks = 0
 	}
+
+	// Get agent count
+	agentQuery := `SELECT COUNT(*) FROM agents WHERE project_id = $1`
+	err = r.pool.QueryRow(ctx, agentQuery, projectID).Scan(&stats.TotalAgents)
+	if err != nil {
+		stats.TotalAgents = 0
+	}
+
+	// Workflows not implemented yet
+	stats.TotalWorkflows = 0
+
 	return stats, nil
 }

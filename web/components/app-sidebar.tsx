@@ -14,6 +14,7 @@ import {
   SquareTerminal,
   Users,
   FolderKanban,
+  ListTodo,
 } from "lucide-react"
 
 import { NavMain } from "./nav-main"
@@ -183,6 +184,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "All Projects",
             url: "/projects",
+          },
+        ],
+      },
+      {
+        title: "Tasks",
+        url: "/tasks",
+        icon: ListTodo,
+        items: [
+          {
+            title: "All Tasks",
+            url: "/tasks",
           },
         ],
       },
