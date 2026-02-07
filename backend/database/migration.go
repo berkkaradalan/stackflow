@@ -112,6 +112,45 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) error 
 		`CREATE INDEX IF NOT EXISTS idx_task_activities_task_id ON task_activities(task_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_task_activities_actor_id ON task_activities(actor_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_task_activities_action ON task_activities(action)`,
+		`CREATE TABLE IF NOT EXISTS execution_plans (
+			id SERIAL PRIMARY KEY,
+			project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+			created_by INTEGER NOT NULL,
+			creator_type VARCHAR(10) NOT NULL DEFAULT 'user',
+			plan_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+			status VARCHAR(50) NOT NULL DEFAULT 'draft',
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_execution_plans_project_id ON execution_plans(project_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_execution_plans_status ON execution_plans(status)`,
+		`CREATE TABLE IF NOT EXISTS agent_assignments (
+			id SERIAL PRIMARY KEY,
+			plan_id INTEGER NOT NULL REFERENCES execution_plans(id) ON DELETE CASCADE,
+			agent_id INTEGER NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+			task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+			status VARCHAR(50) NOT NULL DEFAULT 'pending',
+			started_at TIMESTAMP,
+			completed_at TIMESTAMP,
+			report_data JSONB,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_agent_assignments_plan_id ON agent_assignments(plan_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_agent_assignments_agent_id ON agent_assignments(agent_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_agent_assignments_task_id ON agent_assignments(task_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_agent_assignments_status ON agent_assignments(status)`,
+		`CREATE TABLE IF NOT EXISTS execution_reports (
+			id SERIAL PRIMARY KEY,
+			project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+			report_type VARCHAR(50) NOT NULL,
+			generated_by INTEGER NOT NULL,
+			generator_type VARCHAR(10) NOT NULL DEFAULT 'user',
+			report_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_execution_reports_project_id ON execution_reports(project_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_execution_reports_report_type ON execution_reports(report_type)`,
 	}
 
 	for i, query := range queries {
