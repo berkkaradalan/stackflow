@@ -29,8 +29,8 @@ func setupExecutionPlanRoutes(r *gin.RouterGroup, planHandler *handler.Execution
 	agents.Use(middleware.AuthMiddleware(jwtManager))
 	{
 		// Developer/QA bots request tasks and report completion
-		agents.GET("/:agent_id/next-task", planHandler.GetNextTask)
-		agents.POST("/:agent_id/task-complete", planHandler.TaskComplete)
-		agents.GET("/:agent_id/context", planHandler.GetAgentContext)
+		agents.GET("/:id/next-task", planHandler.GetNextTask)
+		agents.POST("/:id/task-complete", planHandler.TaskComplete)
+		agents.GET("/:id/context", planHandler.GetAgentContext)
 	}
 }

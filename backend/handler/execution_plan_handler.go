@@ -145,11 +145,11 @@ func (h *ExecutionPlanHandler) UpdatePlan(c *gin.Context) {
 
 // --- Agent Task Flow Endpoints ---
 
-// GetNextTask handles GET /api/agents/:agent_id/next-task
+// GetNextTask handles GET /api/agents/:id/next-task
 func (h *ExecutionPlanHandler) GetNextTask(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	agentIDParam := c.Param("agent_id")
+	agentIDParam := c.Param("id")
 	agentID, err := strconv.Atoi(agentIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid agent ID"})
@@ -169,11 +169,11 @@ func (h *ExecutionPlanHandler) GetNextTask(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// TaskComplete handles POST /api/agents/:agent_id/task-complete
+// TaskComplete handles POST /api/agents/:id/task-complete
 func (h *ExecutionPlanHandler) TaskComplete(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	agentIDParam := c.Param("agent_id")
+	agentIDParam := c.Param("id")
 	agentID, err := strconv.Atoi(agentIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid agent ID"})
@@ -203,11 +203,11 @@ func (h *ExecutionPlanHandler) TaskComplete(c *gin.Context) {
 	c.JSON(http.StatusOK, assignment)
 }
 
-// GetAgentContext handles GET /api/agents/:agent_id/context
+// GetAgentContext handles GET /api/agents/:id/context
 func (h *ExecutionPlanHandler) GetAgentContext(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	agentIDParam := c.Param("agent_id")
+	agentIDParam := c.Param("id")
 	agentID, err := strconv.Atoi(agentIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid agent ID"})
