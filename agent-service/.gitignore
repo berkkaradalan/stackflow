@@ -32,3 +32,5 @@ archive.zip
 .codspeed
 
 .venv
+
+.env
