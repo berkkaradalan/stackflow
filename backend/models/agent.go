@@ -13,7 +13,7 @@ type Agent struct {
 	Level       string     `json:"level"`
 	Provider    string     `json:"provider"`
 	Model       string     `json:"model"`
-	APIKey      string     `json:"-"`
+	APIKey      string     `json:"api_key"`
 	Config      AgentConfig `json:"config"`
 	Status      string     `json:"status"`
 	IsActive    bool       `json:"is_active"`

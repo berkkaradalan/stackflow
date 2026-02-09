@@ -84,9 +84,6 @@ func (s *AgentService) GetAgentByID(ctx context.Context, id int) (*models.Agent,
 		return nil, fmt.Errorf("failed to get agent: %w", err)
 	}
 
-	// Remove API key from response
-	agent.APIKey = ""
-
 	return agent, nil
 }
 
@@ -162,9 +159,6 @@ func (s *AgentService) UpdateAgent(ctx context.Context, id int, req *models.Upda
 	if err != nil {
 		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
-
-	// Remove API key from response
-	updatedAgent.APIKey = ""
 
 	return updatedAgent, nil
 }

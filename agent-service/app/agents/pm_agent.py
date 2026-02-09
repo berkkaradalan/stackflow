@@ -5,7 +5,18 @@ from typing import Literal
 from core.env import settings
 from app.providers import create_model_client
 
+# todo - will be refactored
+
 def analyze_project_tool(project_id: str):
+    """
+    Analyze project details and get current status.
+    
+    Args:
+        project_id: The ID of the project to analyze
+        
+    Returns:
+        Project details including name, description, status, and metadata
+    """
     response = requests.get(f"{settings.BACKEND_URL}/api/projects/{project_id}")
     return response.json()
 
@@ -17,6 +28,20 @@ def create_task_tool(
     reviewer_id: int = None,
     tags: list[str] = None
 ):
+    """
+    Create a new task in the project.
+    
+    Args:
+        title: Task title (required)
+        description: Detailed task description
+        priority: Task priority level (low, medium, high, critical)
+        assigned_agent_id: ID of the agent to assign this task
+        reviewer_id: ID of the reviewer agent
+        tags: List of tags for categorization
+        
+    Returns:
+        Created task details with ID and timestamps
+    """
     payload = {
         "title": title,
         "description": description,
@@ -29,11 +54,30 @@ def create_task_tool(
         payload["reviewer_id"] = reviewer_id
     if tags:
         payload["tags"] = tags
+
+    project_id = os.environ.get("PROJECT_ID")
+    auth_token = os.environ.get("AUTH_TOKEN")
     
-    response = requests.post(f"{settings.BACKEND_URL}/api/tasks", json=payload)
+    
+    response = requests.post(
+        f"{settings.BACKEND_URL}/api/projects/{project_id}/tasks",
+        json=payload,
+        headers={"Authorization": auth_token}
+    )
+    
     return response.json()
 
 def list_tasks_tool(project_id: str, status: str = None):
+    """
+    List all tasks in a project with optional status filter.
+    
+    Args:
+        project_id: The ID of the project
+        status: Optional status filter (pending, in_progress, completed, blocked)
+        
+    Returns:
+        List of tasks matching the criteria
+    """
     params = {"project_id": project_id}
 
     if status:
@@ -83,8 +127,8 @@ def init_pm_agent(
     )
     
     pm_agent = create_deep_agent(
-        agent_name=agent_name,
-        agent_description=agent_description,
+        name=agent_name,
+        system_prompt=agent_description,
         model=model,
         tools=[
             list_tasks_tool,
